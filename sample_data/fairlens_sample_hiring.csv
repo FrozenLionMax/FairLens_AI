@@ -1,0 +1,17 @@
+gender,age,education,region,experience,income
+Male,44,Bachelors,North,12,>50K
+Male,39,Masters,West,10,>50K
+Male,51,Doctorate,North,20,>50K
+Male,36,Bachelors,South,9,>50K
+Male,28,HS-grad,South,4,<=50K
+Male,48,Masters,East,17,>50K
+Male,33,Bachelors,West,8,>50K
+Male,41,Some-college,North,11,>50K
+Female,31,Bachelors,South,7,<=50K
+Female,42,Masters,East,13,>50K
+Female,29,Some-college,West,5,<=50K
+Female,37,Bachelors,North,9,<=50K
+Female,45,HS-grad,South,18,<=50K
+Female,34,Masters,East,8,<=50K
+Female,27,Bachelors,West,3,<=50K
+Female,50,Doctorate,North,21,>50K
