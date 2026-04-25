@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import FairLensChat from './FairLensChat';
+import confetti from 'canvas-confetti';
 
 const API_URL = 'http://localhost:8000';
 const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6'];
@@ -416,11 +417,40 @@ export default function Dashboard() {
       });
       setResults(res.data);
       setTab('results');
+      // 🎉 Confetti if low bias!
+      if (res.data.bias_scores?.overall < 40) {
+        setTimeout(() => fireCelebration(), 500);
+      } 
     } catch (err) {
       alert('Upload failed: ' + (err.response?.data?.detail || err.message));
     } finally {
       setLoading(false);
       setProgress(0);
+    }
+  };
+
+  const fireCelebration = () => {
+    confetti({
+      particleCount: 150,
+      spread: 80,
+      origin: { y: 0.6 },
+      colors: ['#6366f1', '#22c55e', '#3b82f6', '#a78bfa'],
+    });
+  };
+
+  const handleSampleData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/sample-data`);
+      setResults(res.data);
+      setTab('results');
+      if (res.data.bias_scores?.overall < 40) {
+        setTimeout(() => fireCelebration(), 500);
+      }
+    } catch (err) {
+      alert('Failed to load sample data: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -438,6 +468,52 @@ export default function Dashboard() {
     } catch (err) {
       alert('Export failed: ' + err.message);
     }
+  };
+
+
+  const ColumnBiasPanel = ({ results }) => {
+    const cols = results?.bias_scores?.column_bias || [];
+    if (cols.length === 0) return null;
+    return (
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ ...S.card, marginBottom: 28 }}>
+        <h3 style={S.sectionTitle}>🔬 Column-Level Bias Analysis</h3>
+        <p style={{ color: '#64748b', fontSize: 13, marginBottom: 16 }}>
+          These specific columns in your dataset were identified as sources of bias:
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px,1fr))', gap: 14 }}>
+          {cols.map((col, i) => {
+            const risk = getRiskLevel(col.bias_score);
+            return (
+              <motion.div key={i} whileHover={{ scale: 1.02 }}
+                style={{ background: `${risk.color}11`, border: `1px solid ${risk.color}33`, borderRadius: 12, padding: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: 14 }}>"{col.column}"</span>
+                  <span style={{ ...S.tag(risk.color), fontSize: 10 }}>{col.bias_score}%</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: 12, margin: '0 0 8px' }}>
+                  Attribute: <strong style={{ color: '#a5b4fc', textTransform: 'capitalize' }}>{col.attribute}</strong>
+                </p>
+                <p style={{ color: '#94a3b8', fontSize: 12, margin: '0 0 8px' }}>
+                  Dominant group: <strong style={{ color: '#e2e8f0' }}>{col.dominant_group}</strong> ({col.dominant_pct}%)
+                </p>
+                <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${col.bias_score}%` }}
+                    transition={{ duration: 1, delay: i * 0.1 }}
+                    style={{ height: '100%', background: risk.color, borderRadius: 2 }} />
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+        {results?.bias_scores?.outcome_column && (
+          <div style={{ marginTop: 16, background: 'rgba(99,102,241,0.08)', borderRadius: 10, padding: '10px 16px' }}>
+            <p style={{ color: '#a5b4fc', fontSize: 13, margin: 0 }}>
+              🎯 Outcome column detected: <strong>"{results.bias_scores.outcome_column}"</strong> — bias calculated against actual selection rates
+            </p>
+          </div>
+        )}
+      </motion.div>
+    );
   };
 
   const biasData = results?.bias_scores ? [
@@ -587,6 +663,32 @@ export default function Dashboard() {
               {!loading && <span style={{ background: 'linear-gradient(135deg,#6366f1,#3b82f6)', color: '#fff', padding: '10px 28px', borderRadius: 8, fontWeight: 700, fontSize: 14 }}>Choose File</span>}
             </label>
           </div>
+          <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <p style={{ color: '#64748b', fontSize: 13, marginBottom: 12 }}>— or —</p>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              onClick={handleSampleData}
+              disabled={loading}
+              style={{
+                background: 'rgba(99,102,241,0.15)',
+                border: '1px solid rgba(99,102,241,0.4)',
+                color: '#a5b4fc',
+                fontWeight: 700,
+                padding: '12px 28px',
+                borderRadius: 10,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: 14,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              🧪 Try with Sample Hiring Dataset
+            </motion.button>
+            <p style={{ color: '#475569', fontSize: 12, marginTop: 8 }}>
+              200-row hiring dataset with intentional gender bias — no upload needed
+            </p>
+          </div>
           {loading && (
             <div style={{ marginTop: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -722,6 +824,7 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </motion.div>
         <BeforeAfter results={results} />
+        <ColumnBiasPanel results={results} />
       </main>
       <FairLensChat auditResults={results} />
     </div>

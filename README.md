@@ -150,6 +150,23 @@ Explain bias scores in plain English
 
 ---
 
+## ✨ Key Features
+
+- 🔬 **Real ML Bias Analysis** — auto-detects protected columns (gender, age, ethnicity, income) and computes actual bias scores from your data not random numbers
+- 🧪 **Sample Dataset** — try instantly with a built-in 200-row hiring dataset, no upload needed
+- 🔍 **Column-Level Breakdown** — shows exactly which columns cause bias and which group dominates
+- 🚦 **Traffic Light View** — color-coded risk indicators (🟢 Safe / 🟡 Moderate / 🔴 High Risk) for every bias category
+- 🏛️ **EEOC Compliance Check** — automated check against federal fairness standards (Disparate Impact Ratio, Statistical Parity)
+- 💬 **AI Chat Assistant** — ask questions about your results in plain English, powered by Google Gemini 2.0 Flash
+- 📊 **Interactive Charts** — bar, area, and radar chart visualizations of bias scores
+- 🔄 **Before vs After Mitigation** — projected improvement after applying recommendations
+- 📄 **PDF & JSON Export** — download a certified audit report
+- 🏅 **Compliance Certification** — unique audit hash, EEOC badge, GDPR verification
+- 📋 **Actionable Recommendations** — prioritized fixes with URGENT / IMPORTANT / ROUTINE severity
+- 🎉 **Confetti Celebration** — fires when your dataset passes all bias checks!
+
+---
+
 ## ⚠️ Important Notes
 - Each person needs their own free API key 
 - Gemini free tier may have regional restrictions — Groq fallback ensures the app works.
