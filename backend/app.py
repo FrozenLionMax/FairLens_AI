@@ -21,14 +21,9 @@ from reportlab.lib.units import inch
 import google.generativeai as genai
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://fair-lens-ai-pi.vercel.app",
-        "http://localhost:5173",
-    ],
-    
+    allow_origins=[*],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
