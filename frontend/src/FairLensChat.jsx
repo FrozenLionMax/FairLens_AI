@@ -479,7 +479,7 @@ Use these exact numbers when answering.`;
                     border: '1px solid rgba(99,102,241,0.3)',
                     letterSpacing: '.04em',
                   }}>
-                    ✦ POWERED BY CLAUDE
+                    ✦ ✦ POWERED BY GEMINI
                   </span>
                 </div>
                 <p style={{
@@ -721,7 +721,7 @@ Use these exact numbers when answering.`;
                 textAlign: 'center',
                 margin: '8px 0 0',
               }}>
-                Powered by Claude AI · Press Enter to send
+                Powered by Google Gemini · Press Enter to send
               </p>
             </div>
           </motion.div>

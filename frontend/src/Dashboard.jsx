@@ -64,7 +64,7 @@ const S = {
   },
   gradCard: {
     background: 'linear-gradient(135deg,rgba(99,102,241,0.15),rgba(59,130,246,0.08))',
-    border: '1px solid rgba(99,102,241,0.3)',
+    border: '1px solid rgba(99,102,241,0.15)',
     borderRadius: 16, padding: 24,
     boxShadow: '0 4px 32px rgba(99,102,241,0.1)',
   },
@@ -508,7 +508,6 @@ export default function Dashboard() {
           <Users size={16} color="#fff" />
         </div>
       </div>
-      <FairLensChat auditResults={results} />
     </div>
   );
 
