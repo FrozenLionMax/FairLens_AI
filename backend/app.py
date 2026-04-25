@@ -24,11 +24,16 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://fair-lens-ai-pi.vercel.app",
+        "http://localhost:5173",
+    ],
+    
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 class ChatMessage(BaseModel):
     role: str
     content: str
