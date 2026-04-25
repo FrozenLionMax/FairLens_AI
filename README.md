@@ -10,8 +10,10 @@ An enterprise-grade AI bias detection platform for hiring, loans, scholarships, 
 - [Python 3.10+](https://python.org/downloads)
 - [Node.js 18+](https://nodejs.org)
 - [Git](https://git-scm.com)
-- Free Groq API key → [console.groq.com/keys](https://console.groq.com/keys)
+- Free Gemini API key → (aistudio.google.com) {Mandatory Google tool used as a qualification rule}
+- Free Groq API key → [console.groq.com/keys](https://console.groq.com/keys) 
 
+Note on Gemini API: The Google Gemini free tier has zero quota (limit: 0) for Indian IP addresses due to regional restrictions. The app is fully built and integrated with the google-generativeai SDK and uses gemini-2.0-flash as the primary model. A Groq/Llama fallback is included so the app remains functional during development. On deployment (non-Indian server), Gemini works as the primary AI.
 ---
 
 ## ⚙️ Setup (First Time Only)
@@ -39,12 +41,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Add your Groq API Key
+### 3. Add your Gemini\Groq API Key
 Open `backend/app.py` and find this line:
 ```python
-GROQ_API_KEY = "YOUR_GROQ_KEY_HERE"
+GEMINI_KEY=your_gemini_key_here
+GROQ_API_KEY=your_groq_key_here
 ```
-Replace it with your key from [console.groq.com/keys](https://console.groq.com/keys)
+Replace it with your key from (aistudio.google.com) \ (https://console.groq.com/keys) 
 
 
 ### 4. Start the Backend
@@ -112,16 +115,41 @@ Then open → http://localhost:5173
 
 ---
 
-## 🤖 AI Models Used
-- **Chat**: Groq `llama-3.1-8b-instant` (free, fast)
+## 🤖 How AI Models work
+
+- User sends message
+        ↓
+Is GEMINI_API_KEY set?
+        ↓
+   YES → Try Gemini 2.0 Flash (Google AI)
+        ↓ (if quota error / region blocked)
+   FALLBACK → Groq Llama 3.1 8B Instant
+        ↓
+   Response sent to user
 
 ## 🛠️ Tech Stack
 - **Frontend**: React + Vite + Recharts + Framer Motion
 - **Backend**: FastAPI + Python
-- **AI**: Groq (Llama 3.1)
+- **AI**: Gemini 2.0 Flash (Google AI) \ (if error) Groq (Llama 3.1)
 - **PDF Export**: ReportLab
 
 ---
 
+✅ Google AI Integration
+This project uses the official google-generativeai Python SDK:
+ pythonimport google.generativeai as genai
+
+genai.configure(api_key=GEMINI_API_KEY)
+ model = genai.GenerativeModel("gemini-2.0-flash")
+ response = model.generate_content(prompt)
+ The chat assistant uses Gemini to:
+
+Explain bias scores in plain English
+ Answer EEOC compliance questions
+ Give actionable recommendations based on audit results
+
+---
+
 ## ⚠️ Important Notes
-- Each person needs their own free Groq key
+- Each person needs their own free API key 
+- Gemini free tier may have regional restrictions — Groq fallback ensures the app works.
