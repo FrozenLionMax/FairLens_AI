@@ -8,3 +8,11 @@ backend/venv/
 frontend/node_modules/
 .vscode/
 .idea/
+
+# Generated reports
+backend/*.pdf
+backend/*.json
+backend/*.csv
+
+# Backup files
+*.backup
