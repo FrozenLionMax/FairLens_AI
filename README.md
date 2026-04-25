@@ -1,154 +1,129 @@
-# FairLens AI - AI Fairness Audit Platform
+# FairLens AI — Bias Detection Platform
 
-FairLens AI detects hidden bias in automated decisions, measures fairness with audit metrics, recommends mitigation steps, and exports a PDF report.
+An enterprise-grade AI bias detection platform for hiring, loans, scholarships, and any automated decision system. Powered by **Groq / Llama 3**.
 
-> We are not making AI smarter.  
-> We are making AI fairer.
+---
 
-> We are not replacing AI.  
-> We are making AI accountable.
+## 🚀 Quick Start
 
-## Hackathon Use Case
+### Prerequisites
+- [Python 3.10+](https://python.org/downloads)
+- [Node.js 18+](https://nodejs.org)
+- [Git](https://git-scm.com)
+- Free Groq API key → [console.groq.com/keys](https://console.groq.com/keys)
 
-Hiring Bias Detection using Adult Income-style data.
+---
 
-## Tech Stack
+## ⚙️ Setup (First Time Only)
 
-- Frontend: React, Vite, Tailwind CSS, Recharts, lucide-react, Axios
-- Backend: FastAPI, Pandas, NumPy, Scikit-learn, ReportLab
-- ML: Logistic Regression active mitigation engine
-- Fairness Reference: AIF360-inspired metric and mitigation layer ([Trusted-AI/AIF360](https://github.com/Trusted-AI/AIF360))
-
-## Project Structure
-
-```text
-Fairlens/
-├── backend/
-│   ├── main.py
-│   ├── fairness_engine.py
-│   ├── report_gen.py
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── index.css
-│   │   └── main.jsx
-│   ├── package.json
-│   ├── postcss.config.js
-│   └── tailwind.config.js
-├── sample_data/
-│   └── fairlens_sample_hiring.csv
-└── README.md
+### 1. Clone the repo
+```bash
+git clone https://github.com/YOUR_USERNAME/fairlens.git
+cd fairlens
 ```
 
-## Features
-
-- CSV upload
-- Bias detection
-- Fairness score
-- Bias alerts
-- Recommendation engine
-- What-if mitigation simulator
-- PDF audit report
-- Before/after charts
-
-## Fairness Metrics
-
-- Selection Rate Difference
-- Demographic Parity Gap
-- Disparate Impact Ratio
-- Statistical Parity Difference
-- Overall Fairness Score
-- Multi-Attribute Bias Scan
-
-## AIF360 Alignment
-
-FairLens follows the AI Fairness 360 workflow: measure bias, explain metrics, and recommend mitigation. The MVP keeps lightweight in-project implementations for hackathon deployment while referencing AIF360 concepts such as reweighing, disparate impact removal, equalized odds postprocessing, and bias scan.
-
-## Run Locally
-
-Backend:
-
+### 2. Backend Setup
 ```bash
 cd backend
+
+# Create virtual environment
 python -m venv venv
+
+# Activate it
+# On Windows:
 venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-uvicorn main:app --reload
 ```
 
-Frontend:
+### 3. Add your Groq API Key
+Open `backend/app.py` and find this line:
+```python
+GROQ_API_KEY = "YOUR_GROQ_KEY_HERE"
+```
+Replace it with your key from [console.groq.com/keys](https://console.groq.com/keys)
 
+
+### 4. Start the Backend
+```bash
+# Make sure you're in the backend folder with venv activated
+uvicorn app:app --reload --port 8000
+```
+Backend runs at → http://localhost:8000
+
+### 5. Frontend Setup (new terminal)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+Frontend runs at → http://localhost:5173
 
-Open the Vite URL, usually `http://localhost:5173`.
+---
 
-## API Routes
+## ✅ Verify Everything Works
 
-- `POST /upload-csv`
-- `GET /check-bias`
-- `GET /get-score`
-- `GET /generate-report`
-- `GET /health`
+- Backend health: http://localhost:8000/api/health
+- AI test: http://localhost:8000/api/test-ai
+- Frontend: http://localhost:5173
 
-## Expected CSV
+---
 
-Recommended columns:
+## 📁 Project Structure
 
-```text
-gender, age, education, region, experience, income
+```
+fairlens/
+├── backend/
+│   ├── app.py              # FastAPI backend + Groq AI chat
+│   ├── requirements.txt    # Python dependencies
+│   └── venv/               # Virtual environment (not in git)
+├── frontend/
+│   ├── src/
+│   │   ├── Dashboard.jsx   # Main dashboard
+│   │   ├── FairLensChat.jsx# AI chat component
+│   │   └── App.jsx
+│   ├── package.json
+│   └── vite.config.js
+└── README.md
 ```
 
-FairLens also accepts common target columns such as `selection`, `selected`, `decision`, `hired`, or `final_selection`.
+---
 
-## Deployment
+## 🔄 Every Time You Want to Run It
 
-Frontend on Vercel:
+**Terminal 1 — Backend:**
+```bash
+cd backend
+venv\Scripts\activate      # Windows
+# source venv/bin/activate  # Mac/Linux
+uvicorn app:app --reload --port 8000
+```
 
+**Terminal 2 — Frontend:**
 ```bash
 cd frontend
-npm run build
+npm run dev
 ```
 
-- Framework: Vite
-- Build command: `npm run build`
-- Output directory: `dist`
-- Env var: `VITE_API_BASE_URL=https://your-render-backend.onrender.com`
+Then open → http://localhost:5173
 
-Backend on Render:
+---
 
-- Root directory: `backend`
-- Build command: `pip install -r requirements.txt`
-- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+## 🤖 AI Models Used
+- **Chat**: Groq `llama-3.1-8b-instant` (free, fast)
 
-## Demo Video Script
+## 🛠️ Tech Stack
+- **Frontend**: React + Vite + Recharts + Framer Motion
+- **Backend**: FastAPI + Python
+- **AI**: Groq (Llama 3.1)
+- **PDF Export**: ReportLab
 
-1. Problem: Automated hiring systems can hide gender bias.
-2. Solution: FairLens audits decisions with fairness metrics.
-3. Demo: Upload CSV or run sample audit.
-4. Show bias alerts, fairness score, proxy detection, and charts.
-5. Click Engage ML Mitigation and show improved score.
-6. Download the PDF audit report.
-7. Close with: "We are not replacing AI. We are making AI accountable."
+---
 
-## PPT Structure
-
-1. Problem Statement
-2. Existing Problem
-3. Our Solution
-4. System Architecture
-5. Features
-6. Tech Stack
-7. Demo Screens
-8. Future Scope
-
-## Team Division
-
-- Member 1: ML and Bias Detection
-- Member 2: Backend and APIs
-- Member 3: Frontend and Dashboard
-- Member 4: PPT, GitHub, Demo, Deployment
+## ⚠️ Important Notes
+- Never commit your Groq API key to GitHub
+- Each person needs their own free Groq key
+- The `.env` file is gitignored for safety

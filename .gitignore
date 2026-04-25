@@ -1,18 +1,21 @@
-node_modules/
-dist/
-build/
-.env
+# Python
+venv/
 __pycache__/
 *.pyc
-backend/venv/
-frontend/node_modules/
-.vscode/
-.idea/
+*.pyo
+.env
+*.egg-info/
 
-# Generated reports
-backend/*.pdf
-backend/*.json
-backend/*.csv
+# Generated report files
+*.pdf
+*.json
+fairlens_report_*
 
-# Backup files
-*.backup
+# Node
+node_modules/
+dist/
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
