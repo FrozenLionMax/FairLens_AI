@@ -14,7 +14,7 @@ import axios from 'axios';
 import FairLensChat from './FairLensChat';
 import confetti from 'canvas-confetti';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6'];
 
 const getRiskLevel = (score) => {
