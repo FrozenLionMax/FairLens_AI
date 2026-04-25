@@ -46,7 +46,7 @@ latest_analysis = {}
 # ── Groq config ───────────────────────────────────────────────────────────────
 # Get your FREE key at: https://console.groq.com/keys
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
-GROQ_MODEL   = "llama3-8b-8192"   # free, fast, always available
+GROQ_MODEL   = "llama-3.1-8b-instant"   # free, fast, always available
 
 
 # ── Basic routes ─────────────────────────────────────────────────────────────
