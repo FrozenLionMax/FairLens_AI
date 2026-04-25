@@ -124,6 +124,4 @@ Then open → http://localhost:5173
 ---
 
 ## ⚠️ Important Notes
-- Never commit your Groq API key to GitHub
 - Each person needs their own free Groq key
-- The `.env` file is gitignored for safety
