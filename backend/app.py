@@ -19,6 +19,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import inch
+import google.generativeai as genai
 
 app = FastAPI()
 
@@ -43,8 +44,10 @@ class ChatRequest(BaseModel):
 # ── In-memory store ──────────────────────────────────────────────────────────
 latest_analysis = {}
 
-# ── Groq config ───────────────────────────────────────────────────────────────
-# Get your FREE key at: https://console.groq.com/keys
+
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
 GROQ_MODEL   = "llama-3.1-8b-instant"   # free, fast, always available
 
@@ -147,37 +150,35 @@ async def analyze(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Groq chat ─────────────────────────────────────────────────────────────────
+# ── Gemini\Groq chat ─────────────────────────────────────────────────────────────────
 @app.post("/api/chat")
 def chat(req: ChatRequest):
-    try:
-        # Build message list for Groq (OpenAI-compatible format)
-        messages = [{"role": "system", "content": req.system}]
-        for m in req.messages:
-            messages.append({"role": m.role, "content": m.content})
-
-        print(f"\n=== GROQ REQUEST ===")
-        print(f"Model   : {GROQ_MODEL}")
-        print(f"Messages: {len(messages)}")
-        print(f"====================\n")
-
-        client = Groq(api_key=GROQ_API_KEY)
-        completion = client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=messages,
-            max_tokens=req.max_tokens,
-            temperature=0.7,
-        )
-
-        reply = completion.choices[0].message.content
-        print(f"=== GROQ REPLY ===\n{reply[:300]}\n==================\n")
-
-        return {"content": [{"text": reply}]}
-
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {str(e)}")
-
+    # Try Gemini first as Gemini API free tier has zero quota in India (limit: 0 error), fall back to Groq 
+    if GEMINI_KEY:
+        try:
+            genai.configure(api_key=GEMINI_KEY)
+            model = genai.GenerativeModel("gemini-2.0-flash")
+            # build prompt
+            full_prompt = req.system + "\n\n"
+            for m in req.messages:
+                full_prompt += f"{m.role}: {m.content}\n"
+            response = model.generate_content(full_prompt)
+            return {"content": [{"text": response.text}]}
+        except Exception as e:
+            print(f"Gemini failed, falling back to Groq: {e}")
+    
+    # Groq fallback
+    client = Groq(api_key=GROQ_API_KEY)
+    messages = [{"role": "system", "content": req.system}]
+    for m in req.messages:
+        messages.append({"role": m.role, "content": m.content})
+    completion = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=messages,
+        max_tokens=req.max_tokens,
+        temperature=0.7,
+    )
+    return {"content": [{"text": completion.choices[0].message.content}]}
 
 # ── PDF export ────────────────────────────────────────────────────────────────
 @app.get("/api/export/pdf")
