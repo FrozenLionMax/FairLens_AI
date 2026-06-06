@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Sparkles, Shield, RotateCcw, ChevronDown, Copy, Check } from 'lucide-react';
-
+import { chat } from './api';
 
 // Quick question suggestions
 const QUICK_QUESTIONS = [
@@ -218,26 +218,14 @@ Role:
 - Keep answers SHORT (3-5 sentences max unless asked for detail)
 - Never use heavy ML jargon without explaining it simply
 
-Key terms to simplify:
+    Key terms to simplify:
 - Disparate Impact Ratio → Fairness Ratio
 - Statistical Parity Difference → Selection Rate Gap
 - Protected Attribute → Sensitive Personal Factor (like gender, race, age)
-- Proxy Feature → Hidden Bias Field`;
+- Proxy Feature → Hidden Bias Field
 
-    if (auditResults?.bias_scores) {
-      const b = auditResults.bias_scores;
-      context += `
-
-CURRENT AUDIT:
-- File: ${auditResults.filename}
-- Overall Score: ${b.overall}/100
-- Gender Bias: ${b.gender}%
-- Ethnicity Bias: ${b.ethnicity}%
-- Age Bias: ${b.age}%
-- Disparate Impact: ${b.disparate_impact_ratio} (${b.disparate_impact_ratio >= 0.80 ? 'PASS ✅' : 'FAIL ❌'})
-
-Use these exact numbers when answering.`;
-    }
+Use the provided JSON context data to answer the user's questions about their current audit. 
+Always refer to the exact scores and metrics in the context.`;
 
     return context;
   };
@@ -261,31 +249,25 @@ Use these exact numbers when answering.`;
         .filter(m => !m.typing && m.content)
         .map(m => ({ role: m.role, content: m.content }));
 
-      // Call Claude API
-      const response = await fetch('http://localhost:8000/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: buildSystemPrompt(),
-          messages: history,
-        }),
+      // Call FairLens AI API using shared axios instance
+      const data = await chat({
+        system: buildSystemPrompt(),
+        messages: history,
+        context_data: auditResults
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || `API Error: ${response.status}`);
-      }
-
-      const data = await response.json();
       const reply = data.content?.[0]?.text || "I couldn't generate a response. Try again.";
 
       // Replace typing with real response
       setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: reply }]);
     } catch (err) {
       console.error('Chat error:', err);
-      const errorMsg = err.message.includes('401')
-        ? '⚠️ **API Key Error** - Please check your Anthropic API key.\n\nGet a free key at: console.anthropic.com'
-        : `⚠️ **Error**: ${err.message}\n\nTry again in a moment.`;
+        const errorData = err.response?.data;
+        const detail = errorData?.detail || errorData?.error?.message || err.message;
+        const errorMsg = detail.includes('401') || detail.includes('403')
+        ? '⚠️ **API Key Error** — Please check your API key configuration.\n\nEnsure GROQ_API_KEY or GEMINI_API_KEY is set on the server.'
+        : detail.includes('Network Error')
+        ? '⚠️ **Connection Error** — Cannot reach the FairLens server.\n\nMake sure the backend is running and the API URL is configured correctly.'
+        : `⚠️ **Error**: ${detail}\n\nTry again in a moment.`;
 
       setMessages(prev => [...prev.slice(0, -1), {
         role: 'assistant',

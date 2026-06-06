@@ -1,6 +1,8 @@
 # FairLens AI — Bias Detection Platform
 
-An enterprise-grade AI bias detection platform for hiring, loans, scholarships, and any automated decision system. Powered by **Groq / Llama 3**.
+**🔗 Live Demo:** [https://fairlens-ai-11025349814.us-central1.run.app](https://fairlens-ai-11025349814.us-central1.run.app)
+
+An enterprise-grade AI bias detection platform for hiring, loans, scholarships, and any automated decision system. Powered by **Google Gemini & Groq/Llama 3.1**.
 
 ---
 

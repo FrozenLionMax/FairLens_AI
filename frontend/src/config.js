@@ -4,35 +4,29 @@ import axios from 'axios';
 // API Configuration
 export const API_CONFIG = {
   // Backend API base URL (FastAPI with Uvicorn)
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  // Uses VITE_API_URL if set, falls back to localhost for dev, and relative paths ('') for production deployments.
+  BASE_URL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : ''),
   
-  // API Endpoints
+  // API Endpoints — aligned with actual backend routes
   ENDPOINTS: {
-    // Health & Status
     HEALTH: '/api/health',
-    
-    // Analysis endpoints
     ANALYZE: '/api/analyze',
-    GET_ANALYSES: '/api/analyses',
-    GET_ANALYSIS: '/api/analyses/{id}',
-    
-    // Report & Export endpoints
-    EXPORT_REPORT: '/api/export/{id}',
-    DOWNLOAD_REPORT: '/api/reports/{id}/download',
-    
-    // Settings endpoints
-    GET_SETTINGS: '/api/settings',
-    UPDATE_SETTINGS: '/api/settings',
-    
-    // Statistics & Reports
-    GET_STATISTICS: '/api/statistics',
-    GET_REPORTS: '/api/reports',
-    
-    // File upload constraints
-    ALLOWED_TYPES: ['csv', 'json', 'xlsx', 'pdf'],
-    MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
-    TIMEOUT: 30000 // 30 seconds
+    SAMPLE_DATA: '/api/sample-data',
+    CHAT: '/api/chat',
+    EXPORT_PDF: '/api/export/pdf',
+    EXPORT_JSON: '/api/export/json',
+    ANALYSES: '/api/analyses',
+    TEST_AI: '/api/test-ai',
+    MITIGATE_INTERACTIVE: '/api/mitigate-interactive',
+    PREVIEW: '/api/preview',
+    ANALYZE_PREVIEW: '/api/analyze-preview',
+    ANALYSIS_BY_ID: '/api/analyses',
   },
+
+  // File upload constraints
+  ALLOWED_TYPES: ['csv', 'json', 'xlsx'],
+  MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
+  TIMEOUT: 60000, // 60 seconds
   
   // Fairness thresholds aligned with EEOC compliance
   FAIRNESS_THRESHOLDS: {
@@ -40,9 +34,6 @@ export const API_CONFIG = {
     STATISTICAL_PARITY_DIFF: 0.10,
     DEMOGRAPHIC_PARITY_GAP: 0.10,
     OVERALL_BIAS_THRESHOLD: 70,
-    DEMOGRAPHIC_BIAS_THRESHOLD: 70,
-    GENDER_BIAS_THRESHOLD: 70,
-    ETHNICITY_BIAS_THRESHOLD: 70
   },
   
   // Bias level classifications
@@ -62,42 +53,16 @@ export const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor for auth tokens (if needed later)
-axiosInstance.interceptors.request.use(
-  (config) => {
-    // Add auth token if available
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 // Response interceptor for error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      console.error('Unauthorized access - redirect to login');
-    } else if (error.response?.status >= 500) {
-      // Handle server errors
+    if (error.response?.status >= 500) {
       console.error('Server error:', error.response.data);
     }
     return Promise.reject(error);
   }
 );
-
-// URL builder utility
-export const buildUrl = (endpoint, params = {}) => {
-  let url = endpoint;
-  Object.keys(params).forEach(key => {
-    url = url.replace(`{${key}}`, params[key]);
-  });
-  return url;
-};
 
 // Retry mechanism for failed requests
 export const fetchWithRetry = async (url, options = {}, maxRetries = 3) => {
@@ -111,28 +76,4 @@ export const fetchWithRetry = async (url, options = {}, maxRetries = 3) => {
       await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
     }
   }
-};
-
-// File upload with progress tracking
-export const uploadFile = (file, onProgress) => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  return axiosInstance.post(API_CONFIG.ENDPOINTS.ANALYZE, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    onUploadProgress: (progressEvent) => {
-      if (onProgress) {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        onProgress(percentCompleted);
-      }
-    },
-  });
-};
-
-// Health check
-export const checkHealth = async () => {
-  const response = await axiosInstance.get(API_CONFIG.ENDPOINTS.HEALTH);
-  return response.data;
 };

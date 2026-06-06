@@ -5,6 +5,9 @@ __pycache__/
 *.pyo
 .env
 *.egg-info/
+backend/.env
+backend/venv/
+backend/__pycache__/
 
 # Generated report files
 *.pdf
@@ -19,3 +22,7 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Uploads
+uploads/
+backend/fairlens.db
